@@ -11,7 +11,6 @@ import (
 var board [][]uint8
 var neighbors [][]uint8
 
-
 func main() {
 	w := 237
 	h := 60
@@ -39,6 +38,7 @@ func main() {
 		neighbors = nextneighbors
 		fmt.Print(cursor.MoveTo(0, 0))
 
+		// TODO: Decouple printing from generating. Printing seems to slow down gol generation a lot, maybe moreso on the network
 		print_board(&board, false)
 		//time.Sleep(time.Second)
 		frame++
