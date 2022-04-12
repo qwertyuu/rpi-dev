@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ahmetalpbalkan/go-cursor"
 )
@@ -12,8 +15,19 @@ var board [][]uint8
 var neighbors [][]uint8
 
 func main() {
-	w := 237
-	h := 60
+	argsWithoutProg := os.Args[1:]
+	w := 32
+	h := 9
+	if len(argsWithoutProg) >= 2 {
+		var err error
+		w, err = strconv.Atoi(argsWithoutProg[0])
+		h, err = strconv.Atoi(argsWithoutProg[1])
+		if err != nil {
+			// handle error
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
 	init_board(&board, &neighbors, w, h)
 
 	for i := 0; i < h; i++ {
@@ -27,6 +41,7 @@ func main() {
 	fmt.Print(cursor.Hide())
 	fmt.Print(cursor.ClearEntireScreen())
 	frame := 0
+	start := time.Now().UnixMilli()
 
 	for {
 		var nextboard [][]uint8
@@ -40,8 +55,14 @@ func main() {
 
 		// TODO: Decouple printing from generating. Printing seems to slow down gol generation a lot, maybe moreso on the network
 		print_board(&board, false)
-		//time.Sleep(time.Second)
+		time.Sleep(time.Millisecond * 100)
 		frame++
+		if frame%1000 == 0 {
+			fmt.Print(frame)
+			fmt.Print("/(")
+			fmt.Print(time.Now().UnixMilli() - start)
+			fmt.Print("ms)")
+		}
 		//print_board(&neighbors, true)
 	}
 }
@@ -76,7 +97,9 @@ func print_board(board *[][]uint8, print_values bool) {
 	var sb strings.Builder
 
 	for i := 0; i < height; i++ {
-		sb.WriteString("\n")
+		if i > 0 {
+			sb.WriteString("\n")
+		}
 		for j := 0; j < width; j++ {
 			if (*board)[i][j] == 0 {
 				sb.WriteString(" ")
